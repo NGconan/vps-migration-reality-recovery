@@ -292,8 +292,6 @@ VLESS + Reality
 Linux VPS
 ```
 
-All sensitive information has been removed and replaced with placeholders.
-
 ---
 
 ## Repository Structure

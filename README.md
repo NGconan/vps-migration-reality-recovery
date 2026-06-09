@@ -269,6 +269,66 @@ Understanding each layer was essential for troubleshooting.
 
 ---
 
+## Configuration Templates
+
+This repository includes anonymized configuration templates used during the project.
+
+### Included Templates
+
+- `configs/xray-client-template.json`
+- `configs/surge-template.conf`
+
+The templates demonstrate how Surge was integrated with a Reality-based VPS service through a local Xray bridge.
+
+```text
+Surge
+↓
+SOCKS5
+↓
+Local Xray
+↓
+VLESS + Reality
+↓
+Linux VPS
+```
+
+All sensitive information has been removed and replaced with placeholders.
+
+---
+
+## Repository Structure
+
+```text
+vps-migration-reality-recovery
+
+├── README.md
+│
+├── images
+│   ├── architecture.png
+│   ├── reality-build-error.png
+│   ├── troubleshooting.png
+│   ├── reality-config.png
+│   ├── local-xray-listener.png
+│   └── recovery-success.png
+│
+├── configs
+│   ├── xray-client-template.json
+│   └── surge-template.conf
+│
+└── docs
+    └── reality-troubleshooting.md
+```text
+
+This repository contains:
+
+- Architecture documentation
+- Migration and recovery evidence
+- Anonymized configuration templates
+- Troubleshooting records
+```
+
+---
+
 ## Future Improvements
 
 Possible improvements include:

@@ -2,7 +2,7 @@
 Personal VPS infrastructure project involving Reality deployment, migration, troubleshooting, and service recovery.
 # Reality Service Recovery After VPS Migration
 
-A personal infrastructure project documenting the deployment, migration, troubleshooting, and recovery of a Reality-based VPS proxy service integrated with Surge and Xray.
+A personal infrastructure case study documenting the deployment, migration, troubleshooting, and recovery of a Reality-based VPS proxy service integrated with Surge and Xray.
 
 ---
 
@@ -10,70 +10,17 @@ A personal infrastructure project documenting the deployment, migration, trouble
 
 ![Architecture](images/architecture.png)
 
-The diagram above summarizes the system architecture, VPS migration process, service failure, troubleshooting workflow, and final recovery.
+This diagram summarizes the overall system architecture, the VPS migration event, the resulting Reality service failure, the investigation process, and the final recovery workflow.
 
 ---
 
-## Project Overview
+## Project Background
 
-This project documents the recovery process of a self-hosted Reality-based VPS proxy service after migrating the server to a new VPS node.
+The original VPS service was already functional through Clash-compatible subscription links.
 
-The service originally worked through Clash-compatible subscriptions. However, my primary client platform was Surge on macOS and iOS, which did not directly support the same VLESS + Reality workflow.
+However, my primary client was Surge on macOS and iOS. Since Surge did not directly support the same VLESS + Reality workflow in my setup, I introduced a local Xray client as a bridge between Surge and the remote VPS.
 
-To solve this problem, I deployed a local Xray client on macOS and built a complete proxy chain connecting Surge, Xray, Reality, and a Linux VPS.
-
-The project later evolved into a real-world troubleshooting exercise involving infrastructure migration, client-server configuration synchronization, Reality handshake failures, and service recovery.
-
----
-
-## Motivation
-
-The original VPS service worked correctly through Clash.
-
-However, because I primarily used Surge as my daily network management tool, I wanted to adapt the service to operate within a Surge-based workflow.
-
-This required:
-
-* Understanding the architecture differences between Clash and Surge.
-* Deploying and configuring a local Xray client.
-* Building a multi-layer proxy chain.
-* Managing both client-side and server-side configurations.
-* Troubleshooting protocol-level failures after infrastructure changes.
-
----
-
-## Technical Environment
-
-### Server Side
-
-* Linux VPS
-* Xray-core
-* 3x-ui
-* VLESS
-* Reality
-* TCP transport
-
-### Client Side
-
-* macOS
-* Surge
-* Local Xray Client
-* sing-box (used during troubleshooting)
-
-### Supporting Technologies
-
-* SSH
-* JSON configuration files
-* TCP/IP networking
-* SOCKS5
-* Port diagnostics
-* Remote server administration
-
----
-
-## System Architecture
-
-The final working architecture followed this flow:
+The resulting traffic flow was:
 
 ```text
 User Applications
@@ -89,94 +36,150 @@ User Applications
  Public Internet
 ```
 
-Unlike Clash, Surge required a local proxy layer before forwarding traffic through Reality.
-
-This project helped establish a clear understanding of how local proxy software interacts with remote infrastructure.
+After the VPS was migrated to a new node, the service stopped working even though the server remained online. This turned a simple infrastructure migration into a troubleshooting and recovery project.
 
 ---
 
-## Migration Event
+## Technical Environment
 
-The VPS was migrated from the original node to a new node using the provider's migration system.
+### Server Side
 
-Migration itself was straightforward.
+- Linux VPS
+- Xray-core
+- 3x-ui
+- VLESS
+- Reality
+- TCP transport
 
-However, after migration:
+### Client Side
 
-* Existing configurations no longer functioned correctly.
-* Reality connections failed.
-* Traffic could no longer reach the remote destination.
-* The service became unavailable despite the VPS being online.
+- macOS
+- Surge
+- Local Xray Client
+- sing-box, used during troubleshooting
 
-This transformed a simple migration task into a full troubleshooting and recovery project.
+### Supporting Tools
+
+- SSH
+- SOCKS5
+- JSON configuration files
+- TCP/IP diagnostics
+- Linux service status checks
+- Log analysis
 
 ---
 
 ## Failure Symptoms
 
-After migration, several symptoms appeared:
+After migration, the service showed the following symptoms:
 
-* Local Xray started normally.
-* Surge successfully connected to the local SOCKS proxy.
-* VPS ports appeared reachable.
-* Public internet access through the proxy failed.
-* Reality handshakes failed.
-* Xray logs returned EOF and connection-related errors.
+- Existing configurations no longer worked.
+- Surge could still connect to the local proxy layer.
+- Local Xray could start and listen locally.
+- The VPS remained reachable.
+- The target port appeared open.
+- Public internet access through the proxy failed.
+- Reality/VLESS negotiation failed.
 
-At this stage, basic network connectivity appeared functional, but protocol-level communication was not.
+### Reality Configuration Error
+
+![Reality Build Error](images/reality-build-error.png)
+
+This error showed that the issue was not only a simple network reachability problem. Part of the failure involved Reality-related configuration validation.
 
 ---
 
 ## Investigation Process
 
-Several potential causes were investigated:
+The troubleshooting process covered multiple layers of the system.
 
-### Connectivity
+### Server-Side Checks
 
-* VPS reachability
-* Port accessibility
-* Firewall status
-* Service status
+- Verified service status.
+- Checked listening ports.
+- Checked whether Xray was running under 3x-ui.
+- Confirmed that the VPS itself was reachable.
 
-### Client Configuration
+### Client-Side Checks
 
-* Local Xray configuration
-* Surge proxy settings
-* SOCKS5 listener configuration
+- Verified the local Xray process.
+- Checked whether Xray was listening on the expected local port.
+- Confirmed that Surge was pointing to the correct local SOCKS5 proxy.
+- Tested whether local requests were reaching Xray.
 
-### Reality Parameters
+### Protocol and Configuration Checks
 
-* UUID
-* Public Key
-* Short ID
-* Server Name (SNI)
-* SpiderX
-* ML-DSA verification settings
+Reality requires strict matching between client-side and server-side parameters. The investigation included checking:
 
-### Service Validation
+- UUID
+- Public Key
+- Short IDs
+- Server Name / SNI
+- SpiderX
+- Reality settings
+- ML-DSA related parameters
 
-* Xray inbound configuration
-* 3x-ui settings
-* Client-server parameter synchronization
+### Troubleshooting Evidence
+
+![Troubleshooting](images/troubleshooting.png)
+
+This stage helped separate basic network reachability problems from Reality protocol negotiation problems.
+
+---
+
+## Reality Configuration Analysis
+
+A key part of the investigation was reviewing the Reality inbound configuration generated by 3x-ui.
+
+![Reality Configuration](images/reality-config.png)
+
+Important configuration areas included:
+
+- Reality mode
+- Target server
+- SNI
+- Short IDs
+- Client compatibility settings
+
+This step was necessary because Reality can fail even when the VPS and port are reachable.
+
+---
+
+## Local Xray Verification
+
+Before focusing on the remote server, the local proxy layer had to be validated.
+
+![Local Xray Listener](images/local-xray-listener.png)
+
+This confirmed that:
+
+- Xray was running locally.
+- The local SOCKS5 listener was active.
+- Surge had a valid local proxy target.
+
+This ruled out several local configuration issues.
 
 ---
 
 ## Root Cause Analysis
 
-The root cause was ultimately traced to configuration inconsistencies introduced during migration and configuration regeneration.
+The root cause was configuration inconsistency after VPS migration and repeated regeneration of Reality-related parameters.
 
-Although the server itself remained reachable, Reality requires strict matching between client-side and server-side parameters.
+The important finding was:
 
-Several critical values were no longer synchronized between the local client and the VPS configuration.
+```text
+Network Reachability ≠ Protocol Validity
+```
 
-As a result:
+In this case:
 
-* TCP connectivity existed.
-* The VPS was online.
-* The service port was reachable.
-* Reality handshakes failed.
+- The VPS was reachable.
+- The service port could be contacted.
+- Local Xray was running.
+- Surge could connect to the local proxy.
+- Reality handshakes still failed.
 
-This demonstrated that successful network connectivity does not necessarily imply successful protocol negotiation.
+This indicated that the failure was caused by mismatched Reality/VLESS parameters rather than a simple offline server or closed port.
 
 ---
 
@@ -184,54 +187,52 @@ This demonstrated that successful network connectivity does not necessarily impl
 
 Recovery involved:
 
-* Regenerating Reality-related parameters.
-* Updating local client configurations.
-* Synchronizing client and server settings.
-* Restarting affected services.
-* Verifying Reality handshake functionality.
-* Testing end-to-end traffic forwarding.
+1. Reviewing the active server-side Reality inbound configuration.
+2. Regenerating required Reality parameters.
+3. Synchronizing client-side and server-side configuration values.
+4. Restarting affected local and remote services.
+5. Re-testing local SOCKS5 behavior.
+6. Verifying end-to-end traffic forwarding.
 
-After configuration synchronization was completed, the service returned to a fully operational state.
+### Recovery Verification
+
+![Recovery Success](images/recovery-success.png)
+
+The recovery logs showed that local SOCKS requests were accepted and VLESS outbound tunnels were successfully established through the remote VPS.
 
 ---
 
 ## Key Lessons Learned
 
-### Deployment Is Easier Than Recovery
+### 1. Deployment Is Easier Than Recovery
 
-Installing Linux, deploying Xray, and configuring 3x-ui were relatively straightforward.
+Installing Linux, Xray, and 3x-ui was relatively straightforward. The most valuable learning happened during the failure investigation and recovery process.
 
-The majority of practical learning occurred during troubleshooting and recovery.
+### 2. Open Ports Do Not Guarantee Working Protocols
 
-### Connectivity Does Not Guarantee Functionality
+A reachable VPS and open TCP port do not guarantee that Reality/VLESS negotiation will succeed.
 
-A reachable server and open port do not guarantee a successful Reality connection.
+### 3. Configuration Drift Can Break Infrastructure
 
-Protocol-level validation is equally important.
+After migration, regenerated or mismatched parameters can silently break an otherwise reachable service.
 
-### Configuration Drift Is Dangerous
+### 4. Layered Proxy Chains Require Clear Mental Models
 
-Infrastructure migrations can introduce subtle inconsistencies between client and server configurations.
-
-Keeping configurations synchronized is critical.
-
-### Layered Architectures Require Clear Mental Models
-
-Understanding the complete traffic path proved essential:
+The final working chain involved multiple layers:
 
 ```text
 Surge
 ↓
-Local Xray
+Local Xray Client
 ↓
-Reality
+VLESS + Reality
 ↓
 Linux VPS
 ↓
-Internet
+Public Internet
 ```
 
-Without understanding each layer, troubleshooting would have been significantly more difficult.
+Understanding each layer was essential for troubleshooting.
 
 ---
 
@@ -239,48 +240,59 @@ Without understanding each layer, troubleshooting would have been significantly 
 
 ### Linux Administration
 
-* VPS deployment
-* Remote server management
-* Service monitoring
-* Configuration management
+- VPS management
+- Remote service validation
+- Process inspection
+- Service troubleshooting
 
 ### Networking
 
-* TCP/IP troubleshooting
-* Port diagnostics
-* Proxy architecture analysis
-* Connectivity verification
+- TCP/IP diagnostics
+- Port validation
+- SOCKS5 proxy behavior
+- Client-server traffic flow analysis
 
 ### Secure Proxy Infrastructure
 
-* Xray
-* Reality
-* VLESS
-* Surge integration
-* SOCKS5
-* sing-box
+- Xray
+- Reality
+- VLESS
+- Surge integration
+- Local proxy bridging
 
 ### Problem Solving
 
-* Root-cause analysis
-* Infrastructure migration recovery
-* Configuration synchronization
-* Multi-stage debugging
+- Root-cause analysis
+- Migration recovery
+- Configuration synchronization
+- Multi-stage debugging
 
 ---
 
 ## Future Improvements
 
-Potential future work includes:
+Possible improvements include:
 
-* Automated configuration backup
-* Configuration version control
-* Migration validation scripts
-* Additional monitoring and logging
-* Multi-node deployment testing
+- Automated configuration backups.
+- Version-controlled anonymized configuration templates.
+- Migration validation checklist.
+- Monitoring and alerting for local and remote proxy services.
+- Clearer documentation of active client/server parameters.
 
 ---
 
 ## Disclaimer
 
-All IP addresses, UUIDs, keys, domains, and sensitive configuration details have been removed or anonymized before publication.
+This repository is a personal learning and infrastructure troubleshooting case study.
+
+All sensitive information has been removed or anonymized before publication, including:
+
+- Real IP addresses
+- Domains
+- UUIDs
+- Public keys
+- Private keys
+- Short IDs
+- SpiderX values
+- Passwords
+- API keys

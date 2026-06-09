@@ -1,5 +1,3 @@
-# vps-migration-reality-recovery
-Personal VPS infrastructure project involving Reality deployment, migration, troubleshooting, and service recovery.
 # Reality Service Recovery After VPS Migration
 
 A personal infrastructure case study documenting the deployment, migration, troubleshooting, and recovery of a Reality-based VPS proxy service integrated with Surge and Xray.
@@ -315,7 +313,7 @@ vps-migration-reality-recovery
 │
 └── docs
     └── reality-troubleshooting.md
-```text
+```
 
 This repository contains:
 
@@ -323,7 +321,6 @@ This repository contains:
 - Migration and recovery evidence
 - Anonymized configuration templates
 - Troubleshooting records
-```
 
 ---
 

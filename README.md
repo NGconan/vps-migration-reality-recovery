@@ -221,3 +221,16 @@ Sensitive information should be removed before publishing:
 The final result was a working Surge-compatible Reality proxy chain using local Xray as a bridge.
 
 More importantly, this project provided hands-on experience in diagnosing real infrastructure failures after migration, understanding layered proxy architecture, and recovering a service through systematic troubleshooting.
+
+
+## Architecture
+
+![Architecture](images/architecture.png)
+
+## Reality Handshake Failure
+
+![Failure](images/reality-failure.png)
+
+## Recovery Verification
+
+![Recovery](images/recovery-success.png)

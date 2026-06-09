@@ -1,0 +1,54 @@
+{
+  "log": {
+    "loglevel": "debug"
+  },
+
+  "inbounds": [
+    {
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "port": 18998,
+      "protocol": "socks",
+      "settings": {
+        "udp": true
+      }
+    }
+  ],
+
+  "outbounds": [
+    {
+      "tag": "vless-reality-example",
+      "protocol": "vless",
+
+      "settings": {
+        "vnext": [
+          {
+            "address": "YOUR_VPS_IP",
+            "port": 443,
+
+            "users": [
+              {
+                "id": "YOUR_UUID",
+                "encryption": "none"
+              }
+            ]
+          }
+        ]
+      },
+
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+
+        "realitySettings": {
+          "serverName": "TARGET_SNI",
+          "fingerprint": "chrome",
+          "publicKey": "YOUR_PUBLIC_KEY",
+          "shortId": "YOUR_SHORT_ID",
+          "spiderX": "/YOUR_SPIDER_PATH",
+          "mldsa65Verify": "YOUR_MLDSA65_VERIFY_KEY"
+        }
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-# Reality Service Recovery After VPS Migration
+# Reality Service Recovery After VPS Migration: A VPS Infrastructure Case Study
 
 A personal infrastructure case study documenting the deployment, migration, troubleshooting, and recovery of a Reality-based VPS proxy service integrated with Surge and Xray.
 
